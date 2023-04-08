@@ -49,10 +49,13 @@ export const Editor = ({ filepath }) => {
     fetch("file://" + filepath)
       .then((response) => response.text())
       .then((data) => {
-        let mode = findModeByFileName(filepath).mode;
+        // if text file has no name, findModeByFilename will return undefined
         // mode is null if filepath is plain text
+        // let mode = modeObj ? modeObj.mode : "text/plain";
+
         let exts;
         try {
+          let mode = findModeByFileName(filepath).mode
           exts = [langs[mode]()];
         } catch {
           exts = [];

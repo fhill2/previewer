@@ -3,7 +3,7 @@ require("file-loader?name=[name].[ext]!./pipe.js");
 require("file-loader?name=[name].[ext]!./i3wm.py");
 
 import { app, BrowserWindow, protocol, screen } from "electron";
-import { resolveHtmlPath } from "./util";
+import { resolveHtmlPath, isTextFile } from "./util";
 
 import path from "path";
 import os from "os";
@@ -82,8 +82,8 @@ function resizeWinToVideo(fp) {
       let streamW, streamH;
       for (const stream of probeData.streams) {
         if (stream.codec_type == "video") {
-          streamW = stream.width
-          streamH = stream.height
+          streamW = stream.width;
+          streamH = stream.height;
         }
       }
 
@@ -102,7 +102,13 @@ function setSize() {
 function mimeToPreviewer(fp) {
   // decide the previewer to use for the file
   const mimeType = mime.lookup(fp);
-  if (!mimeType) throw new Error("mimeType not found");
+
+  if (!mimeType) {
+  if (isTextFile(fp)) return "text";
+  // the file could not have an extension, but still be a text file. detect it here.
+  // this applies to files like i3/config
+    throw new Error("mimeType not found");
+  }
 
   console.log("main: ", mimeType);
 
@@ -125,6 +131,12 @@ function mimeToPreviewer(fp) {
     const [screenW, screenH] = getScreenWH();
     win.setSize(Math.floor(screenW / 2), screenH - statusHeight);
     return "pdf";
+  }
+
+  // some text files arent detected by isTextFile(fp)
+  // these mimes are application/javascript application/toml
+  if (mimeType == "application/javascript" || mimeType == "application/toml") {
+    return "text";
   }
 
   // if mimeType failed to detect, mimeType=false
@@ -284,7 +296,7 @@ const createWindow = () => {
     win.minimize();
     win.setMenu(null);
     // win.show();
-    // win.webContents.openDevTools();
+    win.webContents.openDevTools();
     setupIPC();
   });
 };

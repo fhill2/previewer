@@ -1,7 +1,7 @@
 const path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 module.exports = {
-  mode: "development",
+  mode: process.env.NODE_ENV,
 
   // target is essential, otherwise webpack cannot find the 'electron' module when bundling
   target: ["electron-renderer"],

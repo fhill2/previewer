@@ -1,9 +1,10 @@
 const path = require('path');
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 module.exports = {
-  mode: "development",
+  mode: process.env.NODE_ENV,
   entry: "./src/main/main.js",
   output: {
-    path: path.join(__dirname, "dist", "main"),
+    path: path.join(__dirname, "dist"),
     filename: "[name].js",
   },
   target: "electron-main",
@@ -24,5 +25,6 @@ module.exports = {
   resolve: {
     extensions: [".js", ".jsx"],
   },
+  plugins: [new CleanWebpackPlugin({ verbose: true })],
   devtool: "source-map"
 }

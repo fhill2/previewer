@@ -76,14 +76,22 @@ function limitImageVideoSize(width, height) {
 }
 
 function resizeWinToVideo(fp) {
-  probe(fp).then((probeData) => {
-    const [width, height] = limitImageVideoSize(
-      probeData.streams[0].width,
-      probeData.streams[0].height
-    );
-    console.log("setting size: ", width, height);
-    win.setSize(width, height);
-  }).catch(console.error)
+  probe(fp)
+    .then((probeData) => {
+      console.log(probeData);
+      let streamW, streamH;
+      for (const stream of probeData.streams) {
+        if (stream.codec_type == "video") {
+          streamW = stream.width
+          streamH = stream.height
+        }
+      }
+
+      const [width, height] = limitImageVideoSize(streamW, streamH);
+      console.log("setting size: ", width, height);
+      win.setSize(width, height);
+    })
+    .catch(console.error);
 }
 
 function setSize() {
@@ -256,7 +264,7 @@ const createWindow = () => {
   });
 
   if (app.isPackaged) {
-    win.loadFile("index.html"); // prod
+    win.loadFile(path.join(__dirname, "renderer", "index.html")); // prod
   } else {
     win.loadURL("http://localhost:3000"); // dev
   }
@@ -273,10 +281,10 @@ const createWindow = () => {
   });
 
   win.on("ready-to-show", () => {
-    // win.minimize();
+    win.minimize();
     win.setMenu(null);
-    win.show();
-    win.webContents.openDevTools();
+    // win.show();
+    // win.webContents.openDevTools();
     setupIPC();
   });
 };

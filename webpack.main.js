@@ -3,7 +3,7 @@ module.exports = {
   mode: "development",
   entry: "./src/main/main.js",
   output: {
-    path: path.join(__dirname, "dist"),
+    path: path.join(__dirname, "dist", "main"),
     filename: "[name].js",
   },
   target: "electron-main",
@@ -24,4 +24,5 @@ module.exports = {
   resolve: {
     extensions: [".js", ".jsx"],
   },
+  devtool: "source-map"
 }

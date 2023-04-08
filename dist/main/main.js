@@ -44,8 +44,8 @@ __webpack_require__(/*! file-loader?name=[name].[ext]!./i3wm.py */ "./node_modul
 
 
 // ~/.config/previewer
-var configDir = electron__WEBPACK_IMPORTED_MODULE_0__.app.getPath('appData');
-var config = JSON.parse(fs__WEBPACK_IMPORTED_MODULE_5___default().readFileSync(path__WEBPACK_IMPORTED_MODULE_2___default().join(configDir, 'previewer', 'conf.json')));
+var configDir = electron__WEBPACK_IMPORTED_MODULE_0__.app.getPath("appData");
+var config = JSON.parse(fs__WEBPACK_IMPORTED_MODULE_5___default().readFileSync(path__WEBPACK_IMPORTED_MODULE_2___default().join(configDir, "previewer", "conf.json")));
 var PREV_STATE = true;
 var statusHeight = 25;
 function i3wm(actions) {
@@ -55,22 +55,24 @@ function i3wm(actions) {
     // process.env.NODE_ENV == 'production'
     // ? 'i3wm.py'
     // : path.join(__dirname, 'i3wm.py');
-    var output = child_process__WEBPACK_IMPORTED_MODULE_6___default().execSync('python i3wm.py ' + actions);
-    if (output) console.log("i3-ipc Output: ".concat(output));
+
+    var i3wmCmd = "python ".concat(path__WEBPACK_IMPORTED_MODULE_2___default().join(__dirname, "i3wm.py"), " ").concat(actions);
+    var output = child_process__WEBPACK_IMPORTED_MODULE_6___default().execSync(i3wmCmd);
+    if (output) console.log("i3wm Output: ".concat(output));
   } catch (error) {
-    console.error("i3-ipc Error: ".concat(error));
+    console.error("i3wm Error: ".concat(error));
   }
 }
 function notifySend(msg) {
   try {
-    var output = child_process__WEBPACK_IMPORTED_MODULE_6___default().execSync('notify-send ' + msg);
+    var output = child_process__WEBPACK_IMPORTED_MODULE_6___default().execSync("notify-send " + msg);
   } catch (error) {
-    console.error("i3-ipc Error: ".concat(error));
+    console.error("notify-send Error: ".concat(error));
   }
 }
 function getScreenWH() {
   // get the current screen the electron application is on
-  var currentScreen = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+  var currentScreen = electron__WEBPACK_IMPORTED_MODULE_0__.screen.getDisplayNearestPoint(electron__WEBPACK_IMPORTED_MODULE_0__.screen.getCursorScreenPoint());
   return [currentScreen.workAreaSize.width, currentScreen.workAreaSize.height];
 }
 function limitImageVideoSize(width, height) {
@@ -81,16 +83,16 @@ function limitImageVideoSize(width, height) {
     _getScreenWH2 = _slicedToArray(_getScreenWH, 2),
     screenW = _getScreenWH2[0],
     screenH = _getScreenWH2[1];
-  console.log('before limit: ', screenW, width, height);
+  console.log("before limit: ", screenW, width, height);
   if (width > screenW / 2) {
-    console.log('larger than half screen');
-    console.log('calculated: ', width, height);
+    console.log("larger than half screen");
+    console.log("calculated: ", width, height);
     var aspect = width / height;
     width = Math.floor(screenW / 2);
     height = Math.floor(width / aspect);
-    console.log('new: ', width, height, aspect);
+    console.log("new: ", width, height, aspect);
   }
-  console.log('new: ', width, height);
+  console.log("new: ", width, height);
   return [width, height];
 }
 function resizeWinToVideo(fp) {
@@ -99,9 +101,9 @@ function resizeWinToVideo(fp) {
       _limitImageVideoSize2 = _slicedToArray(_limitImageVideoSize, 2),
       width = _limitImageVideoSize2[0],
       height = _limitImageVideoSize2[1];
-    console.log('setting size: ', width, height);
-    mainWindow.setSize(width, height);
-  });
+    console.log("setting size: ", width, height);
+    win.setSize(width, height);
+  })["catch"](console.error);
 }
 function setSize() {
   // affects setting size on all previewers
@@ -110,39 +112,39 @@ function setSize() {
 function mimeToPreviewer(fp) {
   // decide the previewer to use for the file
   var mimeType = mime_types__WEBPACK_IMPORTED_MODULE_4__.lookup(fp);
-  if (!mimeType) throw new Error('mimeType not found');
-  console.log('main: ', mimeType);
-  if (mimeType.startsWith('video')) {
+  if (!mimeType) throw new Error("mimeType not found");
+  console.log("main: ", mimeType);
+  if (mimeType.startsWith("video")) {
     resizeWinToVideo(fp);
-    return 'video';
+    return "video";
   }
-  if (mimeType.startsWith('audio')) {
-    mainWindow.setSize(500, 100);
-    return 'audio';
+  if (mimeType.startsWith("audio")) {
+    win.setSize(500, 100);
+    return "audio";
   }
-  if (mimeType.startsWith('image')) {
+  if (mimeType.startsWith("image")) {
     resizeWinToVideo(fp);
-    return 'image';
+    return "image";
   }
-  if (mimeType == 'application/pdf') {
+  if (mimeType == "application/pdf") {
     var _getScreenWH3 = getScreenWH(),
       _getScreenWH4 = _slicedToArray(_getScreenWH3, 2),
       screenW = _getScreenWH4[0],
       screenH = _getScreenWH4[1];
-    mainWindow.setSize(Math.floor(screenW / 2), screenH - statusHeight);
-    return 'pdf';
+    win.setSize(Math.floor(screenW / 2), screenH - statusHeight);
+    return "pdf";
   }
 
   // if mimeType failed to detect, mimeType=false
-  if (mimeType.startsWith('text')) {
-    // mainWindow.setSize(340, 2400)
-    return 'text';
+  if (mimeType.startsWith("text")) {
+    // win.setSize(340, 2400)
+    return "text";
   }
 }
 var preview = function preview(fp) {
   var filepath = fp.replace(/^~(?=$|\/|\\)/, os__WEBPACK_IMPORTED_MODULE_3___default().homedir());
   if (!fs__WEBPACK_IMPORTED_MODULE_5___default().existsSync(filepath)) {
-    console.log('DOES NOT EXIST - BLOCKING: ' + filepath);
+    console.log("DOES NOT EXIST - BLOCKING: " + filepath);
     return;
   }
   var stat = fs__WEBPACK_IMPORTED_MODULE_5___default().statSync(filepath);
@@ -155,41 +157,41 @@ var preview = function preview(fp) {
     console.log(e);
     return;
   }
-  console.log('previewer: ', previewer, filepath);
-  i3wm('move');
-  mainWindow.webContents.send('custom-endpoint', {
+  console.log("previewer: ", previewer, filepath);
+  i3wm("move");
+  win.webContents.send("custom-endpoint", {
     previewer: previewer,
     filepath: filepath
   });
 };
 var stopPreviewer = function stopPreviewer() {
   PREV_STATE = false;
-  notifySend('Stopping previewer...');
-  i3wm('hide');
+  notifySend("Stopping previewer...");
+  i3wm("hide");
 };
 var startPreviewer = function startPreviewer() {
   PREV_STATE = true;
-  notifySend('Starting previewer...');
+  notifySend("Starting previewer...");
   // i3wm('hide');
 };
 
 var doAction = function doAction(action) {
-  console.log('action: ', action);
+  console.log("action: ", action);
   switch (action) {
-    case 'toggle':
+    case "toggle":
       if (PREV_STATE) {
         stopPreviewer();
       } else {
         startPreviewer();
       }
       break;
-    case 'exit' || 0:
+    case "exit" || 0:
       electron__WEBPACK_IMPORTED_MODULE_0__.app.quit();
       break;
-    case 'stop':
+    case "stop":
       stopPreviewer();
       break;
-    case 'start':
+    case "start":
       startPreviewer();
       break;
     default:
@@ -201,31 +203,31 @@ function setupIPC() {
   //   process.env.NODE_ENV == 'production'
   //     ? 'release/app/dist/main/pipe.js'
   //     : path.join(__dirname, 'pipe.js');
-  var p = child_process__WEBPACK_IMPORTED_MODULE_6___default().fork(path__WEBPACK_IMPORTED_MODULE_2___default().join(__dirname, "pipe.js"), ['hello'], {
-    stdio: ['pipe', 'pipe', 'pipe', 'ipc']
+  var p = child_process__WEBPACK_IMPORTED_MODULE_6___default().fork(path__WEBPACK_IMPORTED_MODULE_2___default().join(__dirname, "pipe.js"), ["hello"], {
+    stdio: ["pipe", "pipe", "pipe", "ipc"]
   });
   // p.stdout.on('data', (d) => {
   // console.log("p.stdout.on: ", d)
   // });
-  p.stderr.on('data', function (d) {
-    console.log('error: ', d.toString());
+  p.stderr.on("data", function (d) {
+    console.log("error: ", d.toString());
   });
-  p.on('message', function (m) {
-    console.log('pipe->main: ', m);
-    var msg = m.replace(/\n/g, '');
-    msg.includes('/') && PREV_STATE == true ? preview(msg) : doAction(msg);
+  p.on("message", function (m) {
+    console.log("pipe->main: ", m);
+    var msg = m.replace(/\n/g, "");
+    msg.includes("/") && PREV_STATE == true ? preview(msg) : doAction(msg);
   });
-  p.on('exit', function (code, sig) {
-    console.log('exiting child process');
+  p.on("exit", function (code, sig) {
+    console.log("exiting child process");
   });
 }
 function onRendererMsg(event, channel, res) {
   console.log("Received ".concat(channel, " message from renderer process"), res);
-  if (res.command == 'resize') {
+  if (res.command == "resize") {
     // setting width height in pixels from char count values is bad
     // instead, set codemirror to autosize width and height, then get the size in pixels of the dom element
     // then resize electron window with these values
-    // const screenBounds = screen.getDisplayMatching(mainWindow.getBounds()).size;
+    // const screenBounds = screen.getDisplayMatching(win.getBounds()).size;
     var _getScreenWH5 = getScreenWH(),
       _getScreenWH6 = _slicedToArray(_getScreenWH5, 2),
       screenW = _getScreenWH6[0],
@@ -238,62 +240,65 @@ function onRendererMsg(event, channel, res) {
     var height = Math.round(res.data.height * 19); // * to badly convert char count -> pixels until a better implementation
     if (height > screenH) height = screenH;
 
-    // let appBounds = mainWindow.getBounds();
+    // let appBounds = win.getBounds();
     // let maxHeight = screenH - appBounds.y;
 
-    mainWindow.setSize(width, height - statusHeight);
+    win.setSize(width, height - statusHeight);
   }
 }
+var win;
 var createWindow = function createWindow() {
-  var win = new electron__WEBPACK_IMPORTED_MODULE_0__.BrowserWindow({
-    width: 800,
-    height: 600,
+  win = new electron__WEBPACK_IMPORTED_MODULE_0__.BrowserWindow({
+    width: 1200,
+    height: 1200,
     webPreferences: {
       // if nodeIntegration: false, I have to use a preload script
       // https://stackoverflow.com/questions/62433323/using-the-electron-ipcrenderer-from-a-front-end-javascript-file
       nodeIntegration: true,
-      contextIsolation: true,
-      // This must be true
+      // allows running node.js APIs in the renderer process
+      contextIsolation: false,
+      // allow access to the require function in the renderer process
+      webSecurity: false,
+      // allow loading local files in the renderer process
 
       // worldSafeExecuteJavaScript: true, // This must be true
       devtools: true
     }
   });
-  win.webContents.openDevTools();
   if (electron__WEBPACK_IMPORTED_MODULE_0__.app.isPackaged) {
-    win.loadFile('index.html'); // prod
+    win.loadFile("index.html"); // prod
   } else {
-    win.loadURL('http://localhost:3000'); // dev
+    win.loadURL("http://localhost:3000"); // dev
   }
   // win.loadURL()
 
   // Add IPC listener on mainWindow instance
-  win.webContents.on('ipc-message', function (event, channel, data) {
+  win.webContents.on("custom-endpoint", function (event, channel, data) {
     return onRendererMsg(event, channel, data);
   });
 
   // Remove reference to mainWindow on close
-  win.on('closed', function () {
+  win.on("closed", function () {
     win = null;
   });
-  win.on('ready-to-show', function () {
-    // mainWindow.minimize();
-    // mainWindow.setMenu(null);
-    // mainWindow.show();
+  win.on("ready-to-show", function () {
+    // win.minimize();
+    win.setMenu(null);
+    win.show();
+    win.webContents.openDevTools();
     setupIPC();
   });
 };
 electron__WEBPACK_IMPORTED_MODULE_0__.app.whenReady().then(function () {
   createWindow();
-  electron__WEBPACK_IMPORTED_MODULE_0__.protocol.registerFileProtocol('file', function (request, callback) {
+}).then(function () {
+  electron__WEBPACK_IMPORTED_MODULE_0__.protocol.registerFileProtocol("file", function (request, callback) {
     var url = request.url.substr(7);
     callback({
       path: url
     });
   });
 })["catch"](console.error);
-// .then(() => {
-// })
 
 /***/ }),
 

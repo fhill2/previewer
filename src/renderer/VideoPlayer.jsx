@@ -1,3 +1,4 @@
+import React from 'react';
 import ReactPlayer from 'react-player';
 import { forwardRef, useState, useImperativeHandle, useEffect } from 'react';
 

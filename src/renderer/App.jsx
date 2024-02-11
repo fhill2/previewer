@@ -2,10 +2,6 @@ import React from "react";
 //
 import { ipcRenderer } from "electron";
 
-
-
-
-
 // window.webContents.send('custom-endpoint', 'hello from main process');
 
 // export default function App() {
@@ -32,7 +28,8 @@ import { Editor } from './Editor';
 // import '@react-pdf-viewer/core/lib/styles/index.css';
 
 
-// import './App.css';
+// https://github.com/ntpeters/base16-materialtheme-scheme/blob/master/material-darker.yaml
+import './App.css';
 
 
 export default function App() {

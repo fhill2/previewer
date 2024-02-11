@@ -14,6 +14,9 @@ import child_process from "child_process";
 // for resizing electron window to video dimensions
 import probe from "node-ffprobe";
 
+// reliably run python shell scripts, instead of using child_process
+import { PythonShell } from "python-shell";
+
 // ~/.config/previewer
 const configDir = app.getPath("appData");
 const config = JSON.parse(
@@ -24,20 +27,17 @@ var PREV_STATE = true;
 var statusHeight = 25;
 
 function i3wm(actions) {
-  // move previewer to 0 0 of the current monitor its on
-  try {
-    // let childFile =
-    // process.env.NODE_ENV == 'production'
-    // ? 'i3wm.py'
-    // : path.join(__dirname, 'i3wm.py');
-
-    const i3wmCmd = `python ${path.join(__dirname, "i3wm.py")} ${actions}`;
-    const output = child_process.execSync(i3wmCmd);
-
-    if (output) console.log(`i3wm Output: ${output}`);
-  } catch (error) {
-    console.error(`i3wm Error: ${error}`);
-  }
+  // child_process python cmd does not bundle with electron-builder, it reports the incorrect path
+  // instead, do not zip source files into an asar and use npm python-shell instead
+  // https://stackoverflow.com/questions/56079548/is-it-possible-to-install-python-packages-in-node-js-using-python-shell-package
+  PythonShell.run(
+    "./dist/i3wm.py",
+    { args: [actions] },
+    function(err, results) {
+      if (err) throw err;
+      else console.log(results);
+    }
+  );
 }
 
 function notifySend(msg) {
@@ -78,7 +78,6 @@ function limitImageVideoSize(width, height) {
 function resizeWinToVideo(fp) {
   probe(fp)
     .then((probeData) => {
-      console.log(probeData);
       let streamW, streamH;
       for (const stream of probeData.streams) {
         if (stream.codec_type == "video") {
@@ -104,9 +103,9 @@ function mimeToPreviewer(fp) {
   const mimeType = mime.lookup(fp);
 
   if (!mimeType) {
-  if (isTextFile(fp)) return "text";
-  // the file could not have an extension, but still be a text file. detect it here.
-  // this applies to files like i3/config
+    if (isTextFile(fp)) return "text";
+    // the file could not have an extension, but still be a text file. detect it here.
+    // this applies to files like i3/config
     throw new Error("mimeType not found");
   }
 
@@ -129,7 +128,7 @@ function mimeToPreviewer(fp) {
 
   if (mimeType == "application/pdf") {
     const [screenW, screenH] = getScreenWH();
-    win.setSize(Math.floor(screenW / 2), screenH - statusHeight);
+    win.setSize(Math.floor(screenW / 3), screenH - statusHeight);
     return "pdf";
   }
 
@@ -313,3 +312,17 @@ app
     });
   })
   .catch(console.error);
+
+// move previewer to 0 0 of the current monitor its on
+// try {
+// let childFile =
+// process.env.NODE_ENV == 'production'
+// ? 'i3wm.py'
+// : path.join(__dirname, 'i3wm.py');
+
+// const i3wmCmd = `python ${path.join(__dirname, "i3wm.py")} ${actions}`;
+// const output = child_process.execSync(i3wmCmd);
+// if (output) console.log(`i3wm Output: ${output}`);
+// } catch (error) {
+// console.error(`i3wm Error: ${error}`);
+// }

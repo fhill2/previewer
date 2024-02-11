@@ -18,7 +18,7 @@ module.exports = {
         use: {
           loader: "babel-loader",
           options: {
-            presets: ["@babel/preset-env", "@babel/preset-react"],
+            presets: [["@babel/preset-env"], ["@babel/preset-react"]],
           },
         },
       },
@@ -48,6 +48,11 @@ module.exports = {
   resolve: {
     modules: [path.resolve(__dirname), "node_modules"],
     extensions: [".js", ".jsx"],
+    // fix for pdfjs-dist.split().at() is not a function
+    // https://github.com/wojtekmaj/react-pdf/issues/1220
+    alias: {
+      "pdfjs-dist/build/pdf": "pdfjs-dist/legacy/build/pdf",
+    },
   },
   // webpack does not clean old bundles inside dist/renderer by defaulrt
   plugins: [new CleanWebpackPlugin({ verbose: true })],
